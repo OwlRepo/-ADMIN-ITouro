@@ -25,7 +25,7 @@ import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
 import { collection, getDocs } from "@firebase/firestore";
 import { db } from "../configurations/firestore_config";
 import { RiLogoutBoxLine } from "react-icons/ri";
-import { Button, IconButton } from "@chakra-ui/button";
+import { IconButton } from "@chakra-ui/button";
 import { Tooltip } from "@chakra-ui/tooltip";
 
 export default function Dashboard(props) {
@@ -46,25 +46,41 @@ export default function Dashboard(props) {
           <Text fontSize="md">Your quick access to all operations</Text>
         </VStack>
         <Spacer />
-        <HStack>
-          <Tooltip label="Sign out">
+        <Tooltip label="Sign out">
+          <HStack
+            _hover={{ cursor: "pointer" }}
+            onClick={() => {
+              Router.push("/sign_in").then(() =>
+                localStorage.setItem("is_signed_in", "false")
+              );
+            }}
+          >
+            <Text fontSize="md">Sign out</Text>
             <IconButton
               icon={<RiLogoutBoxLine color="white" />}
               backgroundColor="#444444"
-              onClick={() => Router.push("/sign_in")}
+              onClick={() => {
+                Router.push("/sign_in").then(() =>
+                  localStorage.setItem("is_signed_in", "false")
+                );
+              }}
             />
-          </Tooltip>
-        </HStack>
+          </HStack>
+        </Tooltip>
       </HStack>
       <Box height={5} />
       <Text fontSize="3xl">Routes</Text>
-      <Flex padding={2} spacing={5} wrap="wrap" minWidth="80%">
+      <Flex
+        padding={2}
+        spacing={5}
+        overflow={width <= 520 ? "scroll" : "hidden"}
+      >
         {props.routes.map((data, index) => {
           return (
             <Box
               key={index}
               backgroundColor="white"
-              width={220}
+              minWidth={220}
               height={100}
               padding={5}
               borderRadius={"md"}
@@ -84,7 +100,7 @@ export default function Dashboard(props) {
         })}
         <Box
           backgroundColor="white"
-          width={220}
+          minWidth={220}
           height={100}
           padding={5}
           borderRadius={"md"}
@@ -102,13 +118,8 @@ export default function Dashboard(props) {
       <Box height={3} />
       <Divider width="95%" alignSelf="center" />
       <Box height={5} />
-      <HStack paddingRight={4} justifyContent="space-between">
-        <Text fontSize="3xl">Fare Matrix</Text>
-        <Button color="white" backgroundColor="black">
-          + Add new fare
-        </Button>
-      </HStack>
-      <HStack padding={2}>
+      <Text fontSize="3xl">Fare Matrix</Text>
+      <HStack padding={2} overflow={width <= 520 ? "scroll" : "hidden"}>
         <Table
           variant="striped"
           backgroundColor="white"
@@ -133,7 +144,7 @@ export default function Dashboard(props) {
                 <Tr key={index}>
                   <Td>{data.name}</Td>
                   <Td>{data.travel_type}</Td>
-                  <Td>{`Php ` + data.price}</Td>
+                  <Td>{`Php ` + data.price.toFixed(2)}</Td>
                   <Td isNumeric>
                     <HStack justifyContent="flex-end">
                       <Tooltip label="Edit">

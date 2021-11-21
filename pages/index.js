@@ -8,11 +8,18 @@ export default function Home() {
   const { height, width } = useWindowSize();
   useEffect(() => {
     const { pathname } = Router;
-    setTimeout(() => {
-      if (pathname == "/") {
-        Router.push("/sign_in");
-      }
-    }, [2000]);
+    const is_signed_in = localStorage.getItem("is_signed_in");
+    console.log("is_signed_in: " + is_signed_in);
+
+    if (is_signed_in == undefined) {
+      Router.push("/sign_in").then(() =>
+        localStorage.setItem("is_signed_in", "false")
+      );
+    } else if (is_signed_in == "true" && pathname == "/") {
+      Router.push("/dashboard");
+    } else if (is_signed_in == "false" && pathname == "/") {
+      Router.push("/sign_in");
+    }
   });
 
   return (

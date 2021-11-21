@@ -34,6 +34,7 @@ const SignInForm = () => {
       });
       SET_IS_AUTHENTICATING({ is_authenticating: false });
       SET_IS_SIGNED_IN({ is_signed_in: true });
+      localStorage.setItem("is_signed_in", "true");
     });
   }
 
