@@ -9,7 +9,7 @@ import {
   VStack,
 } from "@chakra-ui/layout";
 import useWindowSize from "../hooks/useWindowSize";
-import React from "react";
+import React, { useState } from "react";
 import Router from "next/router";
 import {
   Table,
@@ -22,7 +22,7 @@ import {
   Tr,
 } from "@chakra-ui/table";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import { collection, getDocs } from "@firebase/firestore";
+import { collection, getDocs, updateDoc, doc } from "@firebase/firestore";
 import { db } from "../configurations/firestore_config";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { IconButton } from "@chakra-ui/button";
@@ -30,6 +30,22 @@ import { Tooltip } from "@chakra-ui/tooltip";
 
 export default function Dashboard(props) {
   const { height, width } = useWindowSize();
+  const [fareCategory, setFareCategory] = useState("");
+  const [fareTravelType, setFareTravelType] = useState("");
+
+  const updateFarePrice = async ({ route, travel_type, amount }) => {
+    // const FARE_MATRIX_COLLECTIONS_REF = doc(
+    //   db,
+    //   "fare_matrix",
+    //   route,
+    //   "fare",
+    //   travel_type
+    // );
+    // await updateDoc(FARE_MATRIX_COLLECTIONS_REF, {
+    //   price: 99,
+    // });
+  };
+
   return (
     <Flex
       flex={1}
@@ -152,7 +168,12 @@ export default function Dashboard(props) {
                           icon={<EditIcon color="white" />}
                           backgroundColor="#444444"
                           onClick={() => {
-                            console.log(data.id);
+                            setFareCategory(data.route);
+                            setFareTravelType(data.id);
+                            updateFarePrice({
+                              route: data.route,
+                              travel_type: data.id,
+                            });
                           }}
                         />
                       </Tooltip>
@@ -193,19 +214,40 @@ export async function getServerSideProps(context) {
     id: doc.id,
   }));
 
-  //FARE MATRIX
-  const FARE_MATRIX_COLLECTIONS_REF = collection(
-    db,
-    "fare_matrix",
-    "ROUTE 1",
-    "fare"
+  var fetchFareMatrix = ROUTES.map(async (data, index) => {
+    const FARE_MATRIX_COLLECTIONS_REF = collection(
+      db,
+      "fare_matrix",
+      data.id,
+      "fare"
+    );
+    const DB_FARE_MATRIX_DATA = await getDocs(FARE_MATRIX_COLLECTIONS_REF);
+    const FARE_LIST = [];
+
+    DB_FARE_MATRIX_DATA.forEach((doc) => {
+      const id = doc.id;
+      const name = doc.data().name;
+      const travel_type = doc.data().travel_type;
+      const price = doc.data().price;
+      const route = doc.data().route;
+
+      const fare_data = {
+        price: price,
+        name: name,
+        travel_type: travel_type,
+        id: id,
+        route: route,
+      };
+
+      FARE_LIST.push(fare_data);
+    });
+
+    return FARE_LIST;
+  });
+
+  const FARE_MATRIX = await Promise.all(fetchFareMatrix).then((fareMatrix) =>
+    fareMatrix.flat()
   );
-  var FARE_MATRIX = [];
-  const DB_FARE_MATRIX_DATA = await getDocs(FARE_MATRIX_COLLECTIONS_REF);
-  FARE_MATRIX = DB_FARE_MATRIX_DATA.docs.map((doc) => ({
-    ...doc.data(),
-    id: doc.id,
-  }));
 
   return {
     props: {
