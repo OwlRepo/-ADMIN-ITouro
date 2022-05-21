@@ -114,7 +114,7 @@ export default function Dashboard(props) {
             </Box>
           );
         })}
-        <Box
+        {/* <Box
           backgroundColor="white"
           minWidth={220}
           height={100}
@@ -129,7 +129,7 @@ export default function Dashboard(props) {
             <AddIcon />
             <Text fontSize="sm">Tap here to add new route</Text>
           </VStack>
-        </Box>
+        </Box> */}
       </Flex>
       <Box height={3} />
       <Divider width="95%" alignSelf="center" />
@@ -161,7 +161,7 @@ export default function Dashboard(props) {
                   <Td>{data.name}</Td>
                   <Td>{data.travel_type}</Td>
                   <Td>{`Php ` + data.price.toFixed(2)}</Td>
-                  <Td isNumeric>
+                  {/* <Td isNumeric>
                     <HStack justifyContent="flex-end">
                       <Tooltip label="Edit">
                         <IconButton
@@ -184,7 +184,7 @@ export default function Dashboard(props) {
                         />
                       </Tooltip>
                     </HStack>
-                  </Td>
+                  </Td> */}
                 </Tr>
               );
             })}
