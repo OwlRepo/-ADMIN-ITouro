@@ -22,7 +22,13 @@ import {
   Tr,
 } from "@chakra-ui/table";
 import { AddIcon, DeleteIcon, EditIcon } from "@chakra-ui/icons";
-import { collection, getDocs, updateDoc, doc } from "@firebase/firestore";
+import {
+  collection,
+  getDocs,
+  updateDoc,
+  doc,
+  getDoc,
+} from "@firebase/firestore";
 import { db } from "../configurations/firestore_config";
 import { RiLogoutBoxLine } from "react-icons/ri";
 import { IconButton } from "@chakra-ui/button";
@@ -56,33 +62,39 @@ export default function Dashboard(props) {
       width={width}
       backgroundColor="#f3f6f4"
     >
-      <HStack>
+      <HStack justifyContent={"space-between"}>
         <VStack alignItems="flex-start">
           <Heading>Dashboard</Heading>
           <Text fontSize="md">Your quick access to all operations</Text>
         </VStack>
-        <Spacer />
-        <Tooltip label="Sign out">
-          <HStack
-            _hover={{ cursor: "pointer" }}
-            onClick={() => {
-              Router.push("/sign_in").then(() =>
-                localStorage.setItem("is_signed_in", "false")
-              );
-            }}
-          >
-            <Text fontSize="md">Sign out</Text>
-            <IconButton
-              icon={<RiLogoutBoxLine color="white" />}
-              backgroundColor="#444444"
+        <HStack alignItems={"center"}>
+          <Tooltip label="Sign out">
+            <VStack
+              _hover={{ cursor: "pointer" }}
               onClick={() => {
                 Router.push("/sign_in").then(() =>
                   localStorage.setItem("is_signed_in", "false")
                 );
               }}
-            />
-          </HStack>
-        </Tooltip>
+            >
+              <IconButton
+                icon={<RiLogoutBoxLine color="white" />}
+                backgroundColor="#444444"
+                onClick={() => {
+                  Router.push("/sign_in").then(() =>
+                    localStorage.setItem("is_signed_in", "false")
+                  );
+                }}
+              />
+              <Text fontSize="md">Sign out</Text>
+            </VStack>
+          </Tooltip>
+          <Box width={"2vw"} />
+          <VStack alignItems={"flex-end"}>
+            <Text>Mother Wallet Balance</Text>
+            <Heading>{`₱ ${props.mother_wallet_credits}`}</Heading>
+          </VStack>
+        </HStack>
       </HStack>
       <Box height={5} />
       <Text fontSize="3xl">Routes</Text>
@@ -151,7 +163,6 @@ export default function Dashboard(props) {
               <Th>ROUTE NAME</Th>
               <Th>TRAVEL TYPE</Th>
               <Th>PRICE</Th>
-              <Th isNumeric>ACTIONS</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -194,7 +205,6 @@ export default function Dashboard(props) {
               <Th>ROUTE NAME</Th>
               <Th>TRAVEL TYPE</Th>
               <Th>PRICE</Th>
-              <Th isNumeric>ACTIONS</Th>
             </Tr>
           </Tfoot>
         </Table>
@@ -249,10 +259,15 @@ export async function getServerSideProps(context) {
     fareMatrix.flat()
   );
 
+  const MOTHER_WALLET_DOC_REF = doc(db, "wallets", "mother_wallet");
+  const docSnap = await getDoc(MOTHER_WALLET_DOC_REF);
+  const MOTHER_WALLET_CREDITS = docSnap.data().credits;
+
   return {
     props: {
       routes: ROUTES,
       fare: FARE_MATRIX,
+      mother_wallet_credits: MOTHER_WALLET_CREDITS,
     },
   };
 }
